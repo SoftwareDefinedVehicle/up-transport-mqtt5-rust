@@ -29,14 +29,13 @@ env:
   RUSTFLAGS: -Dwarnings
   CARGO_TERM_COLOR: always
 
-permissions: {}
+permissions:
+  contents: read # needed for checking out the code
 
 jobs:
   deps:
     name: "Check 3rd party licenses"
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Required by the run-eclipse-dash action for uploading results of the license check
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
@@ -51,6 +50,6 @@ jobs:
           | sed -E 's|([^ ]+) v([^ ]+).*|crate/cratesio/-/\1/\2|' \
           > DEPS.txt
     - name: Run Eclipse Dash Licenses tool
-      uses: eclipse-uprotocol/ci-cd/.github/actions/run-eclipse-dash@fcaf488b5d152c290a3a8dca2463a5c1dec65acd
+      uses: eclipse-uprotocol/ci-cd/.github/actions/run-eclipse-dash@ad3f99eac0675c714f08c473412dae14d9fecaa8 # main
       with:
         components-file: DEPS.txt

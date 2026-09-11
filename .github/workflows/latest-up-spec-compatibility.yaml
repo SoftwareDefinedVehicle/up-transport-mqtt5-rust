@@ -31,14 +31,13 @@ env:
   RUSTFLAGS: -Dwarnings
   CARGO_TERM_COLOR: always
 
-permissions: {}
+permissions:
+  contents: read # needed for checking out the code
 
 jobs:
   requirements-tracing:
     name: "Verify compatibility with latest uProtocol Spec"
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Required by the run-oft action for uploading requirements tracing results
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,7 +64,7 @@ jobs:
       # a tracing report
       - name: Run OpenFastTrace
         id: run-oft
-        uses: eclipse-uprotocol/ci-cd/.github/actions/run-oft@fcaf488b5d152c290a3a8dca2463a5c1dec65acd
+        uses: eclipse-uprotocol/ci-cd/.github/actions/run-oft@ad3f99eac0675c714f08c473412dae14d9fecaa8 # main
         with:
           file-patterns: "${{ env.OFT_FILE_PATTERNS }}"
           tags: "${{ env.OFT_TAGS_}}"
@@ -75,15 +74,9 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 # v1.17.0
         with: 
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-      - uses: taiki-e/install-action@1ed6d7be6168f6c9046541087ff549b6bc581fdf # v2.87.2
-        with:
-          tool: nextest
       - name: Run tests
         run: |
-          # Using nextest because it's faster than built-in test
-          cargo nextest run --all-features
-          # but it cannot execute doc tests
-          cargo test --doc --all-features
+          cargo test --all-features --all-targets --no-fail-fast
 
       # This step will only be run if the tests in the previous step have succeeded.
       # In that case, we use the exit code produced by the OFT run as the job's
